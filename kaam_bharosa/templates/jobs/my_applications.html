@@ -1,0 +1,172 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>My Applications</title>
+   <div id="google_translate_element"></div>
+
+<script type="text/javascript">
+  function googleTranslateElementInit() {
+    new google.translate.TranslateElement({
+      pageLanguage: 'en',
+      includedLanguages: 'en,hi',
+      layout: google.translate.TranslateElement.InlineLayout.SIMPLE
+    }, 'google_translate_element');
+  }
+</script>
+
+<script src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+
+  <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+  <style>
+    body {
+      background: linear-gradient(to right, #1c1c3c, #3e1f47);
+      color: #fff;
+      min-height: 100vh;
+      font-family: 'Segoe UI', sans-serif;
+    }
+
+    .navbar {
+      background-color: #2a0845;
+    }
+
+    .navbar-brand {
+      font-weight: bold;
+      color: #f8f9fa !important;
+      font-size: 1.3rem;
+    }
+
+    .navbar img {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      object-fit: cover;
+    }
+
+    .app-card {
+      background-color: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 15px;
+      padding: 20px;
+      margin-bottom: 20px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.3);
+    }
+
+    .status-pending {
+      background-color: #fff3cd;
+      color: #856404;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      font-weight: 500;
+    }
+
+    .status-accepted {
+      background-color: #d4edda;
+      color: #155724;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      font-weight: 500;
+    }
+
+    .status-rejected {
+      background-color: #f8d7da;
+      color: #721c24;
+      padding: 6px 12px;
+      border-radius: 20px;
+      display: inline-block;
+      font-weight: 500;
+    }
+
+    .btn-back {
+      background-color: #6f42c1;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      padding: 6px 14px;
+    }
+
+    @media (max-width: 768px) {
+      .app-card {
+        padding: 15px;
+      }
+      .navbar-brand {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+
+<!-- Navbar -->
+<nav class="navbar navbar-expand-lg px-4">
+  <a class="navbar-brand" href="/">🏠 KAAM BHAROSA</a>
+  <div class="collapse navbar-collapse">
+    <ul class="navbar-nav ms-auto align-items-center">
+      {% if user.is_authenticated %}
+        <li class="nav-item text-white me-3">👤 <strong>{{ user.username }}</strong></li>
+        {% if user.userprofile %}
+          <li class="nav-item text-white me-3">📞 {{ user.userprofile.phone }}</li>
+          <li class="nav-item text-white me-3">🧑‍💼 {{ user.userprofile.get_role_display }}</li>
+          <li class="nav-item me-3">
+            <img src="{{ user.userprofile.profile_photo.url }}" alt="Profile">
+          </li>
+        {% endif %}
+        <li class="nav-item">
+          <a href="{% url 'logout' %}" class="btn btn-light btn-sm">Logout</a>
+        </li>
+      {% else %}
+        <li class="nav-item me-2"><a href="{% url 'login' %}" class="btn btn-light btn-sm">Login</a></li>
+        <li class="nav-item"><a href="{% url 'signup' %}" class="btn btn-warning btn-sm">Sign Up</a></li>
+      {% endif %}
+    </ul>
+  </div>
+</nav>
+
+<!-- Content -->
+<div class="container mt-4">
+  <div class="d-flex justify-content-between align-items-center mb-3">
+   
+
+          
+    <h2 class="mb-0">📄 My Applications</h2>
+    <a href="{% url 'job_list' %}" class="btn btn-back">← Go Back</a>
+  </div>
+
+  {% if applications %}
+    {% for app in applications %}
+      <div class="app-card">
+        <h5 class="fw-bold">{{ app.job.title }}</h5>
+        <p class="mb-1">📍 <strong>Location:</strong> {{ app.job.location }}</p>
+        <p class="mb-1">💰 <strong>Salary:</strong> ₹{{ app.job.salary }}</p>
+        <p class="mb-1">📅 <strong>Applied On:</strong> {{ app.applied_at|date:"d M Y" }}</p>
+        <p class="mb-2">📌 <strong>Status:</strong>
+          {% if app.status == 'applied' %}
+            <span class="status-pending">🕓 Pending</span>
+          {% elif app.status == 'accepted' %}
+            <span class="status-accepted">✅ Accepted</span>
+          {% else %}
+            <span class="status-rejected">❌ Rejected</span>
+          {% endif %}
+        </p>
+
+        {% if app.status == 'accepted' %}
+          <a href="{% url 'contact_applicant' app.id %}" class="btn btn-success btn-sm">📞 Contact Job Provider</a>
+          
+        {% endif %}
+      </div>
+    {% endfor %}
+  {% else %}
+    <div class="alert alert-warning text-center mt-4">
+      You haven't applied to any jobs yet.
+    </div>
+  {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>
